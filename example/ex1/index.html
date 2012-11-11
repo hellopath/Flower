@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Flower</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link  href="../../css/main.css" rel="stylesheet"/>
+	</head>
+<body>
+    
+    <div id="container"></div>
+
+    <script src="../../vendor/jquery/jquery-1.8.2.min.js"></script>
+	<script src="../../vendor/three.js/Three.min.js"></script>
+	<script src="../../vendor/three.js/Detector.js"></script>
+	<script src="../../vendor/three.js/Stats.js"></script>
+	<script src="../../vendor/threex/THREEx.screenshot.js"></script>
+	<script src="../../vendor/threex/THREEx.FullScreen.js"></script>
+	<script src="../../vendor/threex/THREEx.WindowResize.js"></script>
+	<script src="../../vendor/threex/threex.dragpancontrols.js"></script>
+	<script src="../../util/Math2.js"></script>
+
+	<script>
+		var camera, scene, renderer, cameraControls;
+		var geometry, material, mesh, flowerContainer;
+		var light;
+		var i = 0, counter = 0;
+		var loader;
+		var leaves = [];
+		var mouse = {x:0, y:0};
+
+		init();
+		animate();
+
+		function init() {
+			
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
+			camera.position.z = 500;
+
+			cameraControls	= new THREEx.DragPanControls(camera)
+
+			scene = new THREE.Scene();
+
+			flowerContainer = new THREE.Object3D();
+			scene.add(flowerContainer);
+
+			loader = new THREE.BinaryLoader(true);
+			loader.load("../../asset/3Dobject/leaf.js", function( geometry ) { geometryLoaded( geometry ) });
+
+			document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+
+		}
+
+		function onDocumentMouseMove( event ) {
+
+			event.preventDefault();
+
+			mouse.x = ((event.clientX) - (window.innerWidth/2))* 0.01;
+			mouse.y = ((event.clientY) - (window.innerHeight/2)) * 0.01;
+		}
+
+		function geometryLoaded(geometry) {
+			// Golden angle
+			var t = 137.5;
+			var material = new THREE.MeshNormalMaterial({ side:THREE.DoubleSide });
+
+			for(i = 0; i < 10; i++) {
+				mesh = new THREE.Mesh( geometry, material );
+				flowerContainer.add( mesh );	
+				mesh.rotation.set(Math2.degreesToRadians(90), Math2.degreesToRadians(t*i), 0);	
+				leaves[i] = mesh;
+			}
+		}
+
+		function animate() {
+
+			requestAnimationFrame( animate );
+
+			cameraControls.update();
+
+			flowerContainer.rotation.y = ( mouse.x - flowerContainer.rotation.y ) * 0.5;
+			flowerContainer.rotation.x = ( mouse.y - flowerContainer.rotation.x ) * 0.5;
+
+			renderer.render( scene, camera );
+
+		}
+
+	</script>
+
+</body>
+</html>
